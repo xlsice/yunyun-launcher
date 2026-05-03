@@ -1,0 +1,18 @@
+appId: com.shimoray.yunyun-launcher
+productName: 云云启动器
+copyright: Copyright © 2026 雪冷水
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**/*
+  - resources/**/*
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
