@@ -393,6 +393,17 @@ body {
   font-size: 1rem;
 }
 
+.launch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none;
+}
+
+.launch-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 0 var(--grass-dark), 0 6px 0 rgba(0,0,0,0.1);
+}
+
 .home-version {
   font-size: 0.8rem;
   color: var(--text-light);
@@ -628,6 +639,357 @@ body {
   opacity: 0.6;
 }
 
+/* ====== Phase 1: 登录区域 ====== */
+.home-login-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 16px;
+  min-height: 60px;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.ms-icon {
+  font-size: 1.2rem;
+}
+
+.login-in-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid rgba(93,64,55,0.2);
+}
+
+.device-code-display {
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+  color: var(--gold-dark);
+  background: rgba(242,201,76,0.12);
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 2px dashed var(--gold);
+}
+
+.device-code-instruction {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.ms-link {
+  color: var(--sky-blue);
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.device-code-waiting {
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.dot-anim {
+  animation: dotPulse 1.5s steps(4, end) infinite;
+}
+
+@keyframes dotPulse {
+  0%, 20% { opacity: 0; }
+  40% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+.cancel-login-btn {
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  background: none;
+  color: var(--text-light);
+  border: 1px solid var(--border-pixel);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-cute);
+  transition: all 0.2s;
+}
+
+.cancel-login-btn:hover {
+  background: rgba(240,100,100,0.1);
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+.login-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--card-bg);
+  border-radius: 10px;
+  border: 1px solid rgba(93,64,55,0.15);
+}
+
+.player-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  border: 2px solid var(--grass-green);
+}
+
+.login-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.player-name-display {
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+
+.player-uuid-display {
+  font-size: 0.7rem;
+  color: var(--text-light);
+}
+
+.logout-btn {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border: 1px solid var(--border-pixel);
+  border-radius: 4px;
+  background: none;
+  color: var(--text-mid);
+  cursor: pointer;
+  font-family: var(--font-cute);
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(240,100,100,0.08);
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+.login-error {
+  color: #c0392b;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 6px 12px;
+  background: rgba(231,76,60,0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(231,76,60,0.2);
+  max-width: 300px;
+  word-break: break-word;
+}
+
+/* ====== Phase 1: 游戏设置区域 ====== */
+.home-settings {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-label {
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.setting-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid rgba(93,64,55,0.25);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: var(--font-cute);
+  color: var(--text-dark);
+  background: var(--card-bg);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.setting-select:focus {
+  border-color: var(--grass-green);
+}
+
+.setting-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-java-btn {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  background: none;
+  border: 1px solid rgba(93,64,55,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-java-btn:hover {
+  background: rgba(106,176,92,0.1);
+  border-color: var(--grass-green);
+}
+
+.memory-input-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.memory-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid rgba(93,64,55,0.25);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: var(--font-cute);
+  color: var(--text-dark);
+  background: var(--card-bg);
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+  max-width: 80px;
+}
+
+.memory-input:focus {
+  border-color: var(--grass-green);
+}
+
+.memory-unit {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  font-weight: bold;
+}
+
+/* ====== Phase 1: 下载进度 ====== */
+.home-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 12px;
+}
+
+.download-progress-section {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(93,64,55,0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(93,64,55,0.15);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--grass-green), var(--grass-mid));
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.download-info {
+  font-size: 0.72rem;
+  color: var(--text-light);
+  text-align: center;
+  word-break: break-all;
+}
+
+/* ====== Phase 1: 游戏日志 ====== */
+.launch-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.kill-btn {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  box-shadow: 0 4px 12px rgba(231,76,60,0.3);
+}
+
+.kill-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(231,76,60,0.4);
+}
+
+.launch-log-container {
+  width: 100%;
+  max-width: 520px;
+  margin: 12px auto 0;
+  background: #1a1a2e;
+  border-radius: 8px;
+  border: 2px solid var(--border-pixel);
+  overflow: hidden;
+  max-height: 220px;
+}
+
+.launch-log-header {
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.3);
+  color: var(--grass-green);
+  font-size: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.launch-log-content {
+  padding: 8px 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.log-line {
+  color: #a0a0a0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.log-line:first-child {
+  color: #87ceeb;
+}
+
+.launch-log-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.launch-log-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.launch-log-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+
 /* ====== 响应式适配 ====== */
 @media (max-width: 400px) {
   .home-stats {
@@ -637,5 +999,25 @@ body {
 
   .stat-card {
     min-width: 100%;
+  }
+
+  .home-settings {
+    max-width: 100%;
+    padding: 0 8px;
+  }
+
+  .setting-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .launch-log-container {
+    max-width: 100%;
+    margin: 12px 8px 0;
+  }
+
+  .launch-btn.pulse-glow {
+    font-size: 1.1rem;
+    padding: 14px 36px;
   }
 }
