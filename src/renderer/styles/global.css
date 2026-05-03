@@ -990,6 +990,649 @@ body {
   border-radius: 2px;
 }
 
+/* ====== Phase 2: 登录状态栏 ====== */
+.auth-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 20px;
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(93,64,55,0.12);
+  border-radius: 20px;
+  margin: 4px 0 8px;
+  backdrop-filter: blur(4px);
+}
+
+.auth-status-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+}
+
+.auth-label {
+  color: var(--text-light);
+  font-weight: bold;
+}
+
+.auth-value {
+  font-family: var(--font-pixel);
+  font-size: 0.72rem;
+}
+
+.auth-value.auth-ok {
+  color: var(--grass-green);
+}
+
+.auth-value.auth-none {
+  color: #c0a080;
+}
+
+.auth-divider {
+  color: rgba(93,64,55,0.2);
+}
+
+/* ====== Phase 2: 商城 webview ====== */
+.shop-tab {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.shop-webview {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ====== Phase 2: 活动中心 ====== */
+.events-tab,
+.lottery-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--text-mid);
+}
+
+.empty-emoji {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+/* --- 事件卡片通用 --- */
+.event-card {
+  background: var(--card-bg);
+  border: 2px solid var(--border-pixel);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 3px 0 rgba(90,67,44,0.1);
+}
+
+/* --- 每日签到卡 --- */
+.checkin-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, #fffef9, #fef9e7);
+}
+
+.checkin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.checkin-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+.checkin-streak {
+  font-size: 0.8rem;
+  color: var(--gold-dark);
+}
+
+.checkin-streak strong {
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+}
+
+/* 7天进度条 */
+.streak-dots {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.streak-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border: 2px solid rgba(93,64,55,0.15);
+  background: #f0ebe0;
+  color: var(--text-light);
+  transition: all 0.3s ease;
+}
+
+.streak-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold-dark);
+  color: white;
+  box-shadow: 0 0 8px rgba(242,201,76,0.5);
+}
+
+.streak-dot.bonus {
+  width: 38px;
+  height: 38px;
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, #f2c94c, #f2994a);
+  border-color: #d4a017;
+}
+
+.streak-dot.bonus.filled {
+  animation: bonusPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes bonusPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(242,201,76,0.5); }
+  50% { box-shadow: 0 0 20px rgba(242,201,76,0.8); }
+}
+
+/* 签到按钮 */
+.checkin-btn {
+  font-size: 1rem !important;
+  padding: 12px 40px !important;
+  background: linear-gradient(135deg, #f2c94c, #f2994a) !important;
+  border-color: #d4a017 !important;
+  box-shadow: 0 4px 0 #b8860b, 0 6px 0 rgba(0,0,0,0.08) !important;
+  animation: checkinGlow 2s ease-in-out infinite;
+}
+
+.checkin-btn:hover {
+  background: linear-gradient(135deg, #f3d45c, #f3aa5a) !important;
+}
+
+.checkin-btn.checked {
+  background: linear-gradient(135deg, #a8d8a0, #6ab04c) !important;
+  border-color: var(--grass-dark) !important;
+  box-shadow: 0 4px 0 var(--grass-dark), 0 6px 0 rgba(0,0,0,0.08) !important;
+  animation: none;
+}
+
+@keyframes checkinGlow {
+  0%, 100% { box-shadow: 0 4px 0 #b8860b, 0 6px 0 rgba(0,0,0,0.08), 0 0 0 0 rgba(242,201,76,0.5); }
+  50% { box-shadow: 0 4px 0 #b8860b, 0 6px 0 rgba(0,0,0,0.08), 0 0 24px 6px rgba(242,201,76,0.4); }
+}
+
+.checkin-done-text {
+  font-size: 0.78rem;
+  color: var(--grass-green);
+  font-weight: bold;
+}
+
+/* --- 积分面板 --- */
+.points-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #f7f9fc, #e8f4f8);
+}
+
+.points-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.points-label {
+  font-size: 0.8rem;
+  color: var(--text-mid);
+}
+
+.points-value {
+  font-family: var(--font-pixel);
+  font-size: 2.8rem;
+  color: var(--gold-dark);
+  text-shadow: 2px 2px 0 rgba(242,201,76,0.3);
+}
+
+.points-detail {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  justify-content: center;
+}
+
+.points-detail-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.points-detail-label {
+  font-size: 0.7rem;
+  color: var(--text-light);
+}
+
+.points-detail-value {
+  font-family: var(--font-pixel);
+  font-size: 0.9rem;
+}
+
+.points-detail-value.earn {
+  color: var(--grass-green);
+}
+
+.points-detail-value.spend {
+  color: #c0392b;
+}
+
+.points-divider {
+  width: 1px;
+  height: 30px;
+  background: rgba(93,64,55,0.12);
+}
+
+/* --- 流水表格 --- */
+.logs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.logs-title {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(93,64,55,0.12);
+}
+
+.logs-table-wrapper {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.logs-table-wrapper::-webkit-scrollbar {
+  width: 4px;
+}
+
+.logs-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(90,67,44,0.12);
+  border-radius: 2px;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.logs-table th {
+  text-align: left;
+  padding: 6px 8px;
+  color: var(--text-light);
+  font-weight: bold;
+  font-size: 0.7rem;
+  border-bottom: 2px solid rgba(93,64,55,0.1);
+  position: sticky;
+  top: 0;
+  background: var(--card-bg);
+  z-index: 1;
+}
+
+.logs-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(93,64,55,0.06);
+  color: var(--text-mid);
+}
+
+.logs-table tbody tr:hover {
+  background: rgba(106,176,92,0.04);
+}
+
+.log-time {
+  color: var(--text-light) !important;
+  white-space: nowrap;
+  font-size: 0.7rem;
+}
+
+.log-reason {
+  font-size: 0.78rem;
+}
+
+.log-amount {
+  font-family: var(--font-pixel);
+  font-size: 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.log-amount.positive {
+  color: var(--grass-green);
+}
+
+.log-amount.negative {
+  color: #c0392b;
+}
+
+.logs-empty {
+  text-align: center;
+  padding: 16px;
+  font-size: 0.8rem;
+}
+
+/* ====== Phase 2: 抽奖 ====== */
+.lottery-machine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: var(--card-bg);
+  border: 2px solid var(--border-pixel);
+  border-radius: 16px;
+  padding: 30px 24px;
+  background: linear-gradient(135deg, #fdf2e9, #fdebd0);
+}
+
+.lottery-display {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.lottery-spinning {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.lottery-spin-icon {
+  font-size: 3rem;
+  animation: lotterySpin 0.5s linear infinite;
+}
+
+@keyframes lotterySpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.lottery-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: resultPop 0.5s ease-out;
+}
+
+@keyframes resultPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.lottery-prize-icon {
+  font-size: 2.5rem;
+}
+
+.lottery-prize-name {
+  font-size: 1.2rem;
+  color: var(--gold-dark);
+}
+
+.lottery-prize-type {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-transform: capitalize;
+}
+
+.lottery-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.7;
+}
+
+.lottery-idle-icon {
+  font-size: 3rem;
+}
+
+.lottery-draw-btn {
+  font-size: 1rem !important;
+  padding: 14px 40px !important;
+  background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+  border-color: #8b1a1a !important;
+  box-shadow: 0 4px 0 #6b1010, 0 6px 0 rgba(0,0,0,0.08) !important;
+  animation: lotteryGlow 2s ease-in-out infinite;
+}
+
+.lottery-draw-btn:hover {
+  background: linear-gradient(135deg, #f06050, #d04040) !important;
+}
+
+@keyframes lotteryGlow {
+  0%, 100% { box-shadow: 0 4px 0 #6b1010, 0 6px 0 rgba(0,0,0,0.08), 0 0 0 0 rgba(231,76,60,0.4); }
+  50% { box-shadow: 0 4px 0 #6b1010, 0 6px 0 rgba(0,0,0,0.08), 0 0 24px 6px rgba(231,76,60,0.3); }
+}
+
+.lottery-history-card {
+  margin-top: 0;
+}
+
+/* ====== Phase 2: 我的 - 个人中心 ====== */
+.profile-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-section-title {
+  font-size: 0.9rem;
+  color: var(--grass-dark);
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(93,64,55,0.12);
+}
+
+.profile-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.profile-info-label {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.profile-info-value {
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+
+.uuid-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem !important;
+  color: var(--text-light) !important;
+  word-break: break-all;
+  max-width: 200px;
+  text-align: right;
+}
+
+/* 云云登录表单 */
+.yunyun-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.login-hint {
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.yunyun-login-start-btn {
+  background: linear-gradient(135deg, #87ceeb, #5ba3d9) !important;
+  border-color: #4a90c4 !important;
+  box-shadow: 0 4px 0 #3a70a0, 0 6px 0 rgba(0,0,0,0.08) !important;
+}
+
+.yunyun-logout-btn {
+  align-self: center;
+  margin-top: 6px;
+  padding: 6px 20px !important;
+}
+
+.login-form-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.login-form-label {
+  font-size: 0.82rem;
+  color: var(--text-mid);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.login-form-label code {
+  background: rgba(90,67,44,0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+
+.login-form-input {
+  padding: 10px 14px;
+  border: 2px solid rgba(93,64,55,0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: var(--font-cute);
+  color: var(--text-dark);
+  background: var(--card-bg);
+  outline: none;
+  text-align: center;
+  letter-spacing: 3px;
+  transition: border-color 0.2s;
+}
+
+.login-form-input:focus {
+  border-color: var(--grass-green);
+}
+
+.login-form-input::placeholder {
+  letter-spacing: 0;
+  color: rgba(93,64,55,0.3);
+}
+
+.login-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.login-form-actions .pixel-btn {
+  font-size: 0.8rem;
+  padding: 8px 16px;
+}
+
+.profile-login-error {
+  margin-top: 8px;
+}
+
+/* ====== Phase 2: Toast 提示 ====== */
+.toast-container {
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-family: var(--font-cute);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  animation: toastIn 0.3s ease-out, toastOut 0.3s ease-in 2.5s forwards;
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.toast-success {
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+  color: #155724;
+  border: 1px solid #b1dfbb;
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+  color: #721c24;
+  border: 1px solid #f1b0b7;
+}
+
+.toast-info {
+  background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+  color: #0c5460;
+  border: 1px solid #abe0ed;
+}
+
+@keyframes toastIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
 /* ====== 响应式适配 ====== */
 @media (max-width: 400px) {
   .home-stats {

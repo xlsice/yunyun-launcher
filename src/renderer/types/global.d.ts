@@ -1,5 +1,5 @@
 // ============================================================
-//  Phase 1: 核心类型定义
+//  全局类型定义
 // ============================================================
 
 // --- 认证 ---
@@ -61,6 +61,48 @@ export interface IpcResult<T = any> {
   error?: string
 }
 
+// --- 云云生态 ---
+export interface YunYunAuth {
+  nickname: string
+  uuid: string
+  token: string
+  expires: number
+}
+
+export interface YunYunPointsData {
+  points: number
+  totalEarned: number
+  totalSpent: number
+}
+
+export interface YunYunCheckInStatusData {
+  checked: boolean
+  streak: number
+}
+
+export interface YunYunCheckInData {
+  points: number
+  streak: number
+  isWeekBonus: boolean
+}
+
+export interface YunYunLogEntry {
+  amount: number
+  reason: string
+  createdAt: string
+}
+
+export interface YunYunLotteryResult {
+  prizeName: string
+  prizeType: string
+}
+
+export interface YunYunLotteryHistoryEntry {
+  prizeName: string
+  prizeType: string
+  createdAt: string
+}
+
 // ============================================================
 //  API 接口
 // ============================================================
@@ -98,6 +140,55 @@ export interface YunYunLauncherAPI {
   killGame: () => Promise<IpcResult<void>>
   onLaunchLog: (callback: (line: string) => void) => () => void
   onLaunchExit: (callback: (code: number) => void) => () => void
+
+  // --- 云云登录 ---
+  yunyunLogin: (
+    nickname: string
+  ) => Promise<IpcResult<{ status: string; code?: string }>>
+  yunyunVerify: (
+    nickname: string,
+    code: string
+  ) => Promise<IpcResult<YunYunAuth>>
+  yunyunGetAuth: () => Promise<YunYunAuth | null>
+  yunyunSetAuth: (data: YunYunAuth) => Promise<boolean>
+  yunyunClearAuth: () => Promise<boolean>
+
+  // --- 积分 ---
+  yunyunGetPoints: (
+    uuid: string,
+    token: string
+  ) => Promise<IpcResult<YunYunPointsData>>
+
+  // --- 每日签到 ---
+  yunyunCheckInStatus: (
+    uuid: string,
+    token: string
+  ) => Promise<IpcResult<YunYunCheckInStatusData>>
+  yunyunCheckIn: (
+    uuid: string,
+    token: string
+  ) => Promise<IpcResult<YunYunCheckInData>>
+
+  // --- 积分流水 ---
+  yunyunGetLogs: (
+    uuid: string,
+    token: string
+  ) => Promise<IpcResult<YunYunLogEntry[]>>
+
+  // --- 抽奖 ---
+  yunyunDrawLottery: (
+    uuid: string,
+    token: string,
+    cost: number
+  ) => Promise<IpcResult<YunYunLotteryResult>>
+  yunyunGetLotteryHistory: (
+    uuid: string,
+    token: string
+  ) => Promise<IpcResult<YunYunLotteryHistoryEntry[]>>
+
+  // --- 设置存储 ---
+  yunyunGetSettings: () => Promise<any>
+  yunyunSetSettings: (key: string, value: any) => Promise<boolean>
 
   // 通用 IPC
   invoke: (channel: string, ...args: any[]) => Promise<any>

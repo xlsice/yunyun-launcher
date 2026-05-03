@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 // ====== 类型定义 ======
-type TabKey = 'home' | 'shop' | 'mod' | 'profile' | 'settings'
+type TabKey = 'home' | 'shop' | 'events' | 'lottery' | 'profile'
 
 interface TabDef {
   key: TabKey
@@ -38,13 +38,45 @@ interface DownloadProgress {
   speed: string
 }
 
+interface YunYunAuth {
+  nickname: string
+  uuid: string
+  token: string
+  expires: number
+}
+
 const tabs: TabDef[] = [
   { key: 'home', label: '首页', emoji: '🏠' },
   { key: 'shop', label: '商城', emoji: '🛒' },
-  { key: 'mod', label: 'Mod', emoji: '📦' },
+  { key: 'events', label: '活动', emoji: '🎁' },
+  { key: 'lottery', label: '抽奖', emoji: '🎰' },
   { key: 'profile', label: '我的', emoji: '👤' },
-  { key: 'settings', label: '设置', emoji: '⚙️' },
 ]
+
+// ====== Toast 提示 ======
+function Toast({
+  message,
+  type,
+  onDone,
+}: {
+  message: string
+  type: 'success' | 'error' | 'info'
+  onDone: () => void
+}) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2800)
+    return () => clearTimeout(t)
+  }, [onDone])
+
+  return (
+    <div className={`toast toast-${type}`}>
+      <span>
+        {type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+      </span>
+      <span>{message}</span>
+    </div>
+  )
+}
 
 // ====== 首页 Tab ======
 function HomeTab({
@@ -68,6 +100,7 @@ function HomeTab({
   onCancelLogin,
   onLaunch,
   onKill,
+  yunyunAuth,
 }: {
   authResult: AuthResult | null
   isLoggingIn: boolean
@@ -89,14 +122,10 @@ function HomeTab({
   onCancelLogin: () => void
   onLaunch: () => void
   onKill: () => void
+  yunyunAuth: YunYunAuth | null
 }) {
-  // 过滤只显示正式版
-  const releaseVersions = versions.filter(
-    (v) => v.type === 'release'
-  )
-  const snapshotVersions = versions.filter(
-    (v) => v.type === 'snapshot'
-  )
+  const releaseVersions = versions.filter((v) => v.type === 'release')
+  const snapshotVersions = versions.filter((v) => v.type === 'snapshot')
 
   return (
     <div className="home-tab">
@@ -107,10 +136,34 @@ function HomeTab({
         <p className="home-subtitle">YunYun Minecraft Server</p>
       </div>
 
-      {/* 登录区域 */}
+      {/* 登录状态栏 */}
+      <div className="auth-status-bar">
+        <div className="auth-status-item">
+          <span className="auth-label">微软</span>
+          {authResult ? (
+            <span className="auth-value auth-ok">
+              {authResult.username}
+            </span>
+          ) : (
+            <span className="auth-value auth-none">未登录</span>
+          )}
+        </div>
+        <div className="auth-divider">|</div>
+        <div className="auth-status-item">
+          <span className="auth-label">云云</span>
+          {yunyunAuth ? (
+            <span className="auth-value auth-ok">
+              {yunyunAuth.nickname}
+            </span>
+          ) : (
+            <span className="auth-value auth-none">未登录</span>
+          )}
+        </div>
+      </div>
+
+      {/* 微软登录区域 */}
       <div className="home-login-section">
         {authResult ? (
-          // 已登录
           <div className="login-info">
             <img
               className="player-avatar"
@@ -130,11 +183,10 @@ function HomeTab({
               </span>
             </div>
             <button className="logout-btn" onClick={onCancelLogin}>
-              切换账户
+              切换
             </button>
           </div>
         ) : isLoggingIn ? (
-          // 登录中
           <div className="login-in-progress">
             {deviceCode ? (
               <>
@@ -169,11 +221,7 @@ function HomeTab({
             )}
           </div>
         ) : (
-          // 未登录
-          <button
-            className="login-btn pixel-btn"
-            onClick={onLogin}
-          >
+          <button className="login-btn pixel-btn" onClick={onLogin}>
             <span className="ms-icon">🔑</span>
             微软账号登录
           </button>
@@ -185,7 +233,6 @@ function HomeTab({
 
       {/* 游戏设置 */}
       <div className="home-settings">
-        {/* 版本选择 */}
         <div className="setting-row">
           <label className="setting-label">游戏版本</label>
           <select
@@ -217,9 +264,8 @@ function HomeTab({
           </select>
         </div>
 
-        {/* Java 选择 */}
         <div className="setting-row">
-          <label className="setting-label">Java 运行环境</label>
+          <label className="setting-label">Java 环境</label>
           <select
             className="setting-select"
             value={selectedJava}
@@ -230,7 +276,7 @@ function HomeTab({
               javaRuntimes.map((j) => (
                 <option key={j.path} value={j.path}>
                   Java {j.majorVersion} ({j.version})
-                  {j.is64bit ? ' 64位' : ' 32位'} — {j.path}
+                  {j.is64bit ? ' 64位' : ' 32位'}
                 </option>
               ))
             ) : (
@@ -241,13 +287,12 @@ function HomeTab({
             className="refresh-java-btn"
             onClick={() => onSelectJava('__refresh__')}
             disabled={isLaunching}
-            title="重新检测 Java"
+            title="重新检测"
           >
             🔄
           </button>
         </div>
 
-        {/* 内存设置 */}
         <div className="setting-row">
           <label className="setting-label">内存分配</label>
           <div className="memory-input-group">
@@ -265,7 +310,7 @@ function HomeTab({
         </div>
       </div>
 
-      {/* 启动/下载按钮 */}
+      {/* 启动/下载 */}
       <div className="home-action">
         {isDownloading ? (
           <div className="download-progress-section">
@@ -286,7 +331,6 @@ function HomeTab({
             </p>
           </div>
         ) : isLaunching ? (
-          // 启动中
           <div className="launch-controls">
             <button
               className="launch-btn pixel-btn kill-btn"
@@ -300,9 +344,7 @@ function HomeTab({
             className="launch-btn pixel-btn pulse-glow"
             onClick={onLaunch}
             disabled={
-              !authResult ||
-              !selectedVersion ||
-              !selectedJava
+              !authResult || !selectedVersion || !selectedJava
             }
           >
             <span className="launch-icon">▶</span>
@@ -353,50 +395,434 @@ function HomeTab({
   )
 }
 
-// ====== 商城 Tab ======
-function ShopTab() {
+// ====== 商城 Tab (webview) ======
+function ShopTab({ yunyunAuth }: { yunyunAuth: YunYunAuth | null }) {
+  const webviewRef = useRef<any>(null)
+
+  useEffect(() => {
+    const wv = webviewRef.current
+    if (!wv || !yunyunAuth) return
+
+    const handleDomReady = () => {
+      try {
+        wv.executeJavaScript(`
+          window.__YUNYUN_AUTH__ = ${JSON.stringify(yunyunAuth)};
+          window.dispatchEvent(new CustomEvent('yunyun-auth-ready', { detail: ${JSON.stringify(yunyunAuth)} }));
+        `)
+      } catch {}
+    }
+
+    wv.addEventListener('dom-ready', handleDomReady)
+    return () => wv.removeEventListener('dom-ready', handleDomReady)
+  }, [yunyunAuth])
+
   return (
     <div className="shop-tab">
-      <h2 className="tab-title">🛒 云云商城</h2>
-      <p className="tab-desc">
-        在游戏内使用金币购买称号、粒子特效和装饰道具
-      </p>
-      <div className="shop-placeholder">
-        <div className="shop-cloud-anim">☁️</div>
-        <p className="pixel-font">商城页面正在建设中...</p>
-        <p className="text-mid">敬请期待！</p>
+      <webview
+        ref={webviewRef}
+        src="https://shimoray.com/yunyun-shop/"
+        className="shop-webview"
+        style={{ width: '100%', height: '100%', minHeight: '500px' }}
+        // @ts-ignore webview 属性
+        allowpopups="false"
+      />
+    </div>
+  )
+}
+
+// ====== 活动 Tab ======
+function EventsTab({
+  yunyunAuth,
+  showToast,
+}: {
+  yunyunAuth: YunYunAuth | null
+  showToast: (msg: string, type: 'success' | 'error' | 'info') => void
+}) {
+  const [checkinStatus, setCheckinStatus] = useState<{
+    checked: boolean
+    streak: number
+  } | null>(null)
+  const [points, setPoints] = useState<{
+    points: number
+    totalEarned: number
+    totalSpent: number
+  } | null>(null)
+  const [logs, setLogs] = useState<
+    Array<{ amount: number; reason: string; createdAt: string }>
+  >([])
+  const [checkingIn, setCheckingIn] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  // 加载数据
+  const loadData = useCallback(async () => {
+    if (!yunyunAuth) {
+      setLoading(false)
+      return
+    }
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setLoading(true)
+    try {
+      const [statusRes, pointsRes, logsRes] = await Promise.all([
+        api.yunyunCheckInStatus(yunyunAuth.uuid, yunyunAuth.token),
+        api.yunyunGetPoints(yunyunAuth.uuid, yunyunAuth.token),
+        api.yunyunGetLogs(yunyunAuth.uuid, yunyunAuth.token),
+      ])
+
+      if (statusRes.success && statusRes.data) {
+        setCheckinStatus(statusRes.data)
+      }
+      if (pointsRes.success && pointsRes.data) {
+        setPoints(pointsRes.data)
+      }
+      if (logsRes.success && logsRes.data) {
+        setLogs(logsRes.data.slice(0, 20))
+      }
+    } catch {}
+    setLoading(false)
+  }, [yunyunAuth])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  const handleCheckIn = async () => {
+    if (!yunyunAuth || checkingIn) return
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setCheckingIn(true)
+    try {
+      const res = await api.yunyunCheckIn(
+        yunyunAuth.uuid,
+        yunyunAuth.token
+      )
+      if (res.success && res.data) {
+        showToast(
+          `签到成功！+${res.data.points} 积分${
+            res.data.isWeekBonus ? ' (周奖励加成!)' : ''
+          }`,
+          'success'
+        )
+        // 刷新
+        await loadData()
+      } else {
+        showToast(res.error || '签到失败', 'error')
+      }
+    } catch {
+      showToast('签到失败，请重试', 'error')
+    }
+    setCheckingIn(false)
+  }
+
+  if (!yunyunAuth) {
+    return (
+      <div className="events-tab">
+        <h2 className="tab-title">🎁 活动中心</h2>
+        <div className="empty-state">
+          <span className="empty-emoji">🔐</span>
+          <p className="pixel-font">请先在「我的」页面登录云云账号</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="events-tab">
+        <h2 className="tab-title">🎁 活动中心</h2>
+        <div className="empty-state">
+          <span className="empty-emoji">⏳</span>
+          <p>加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const streak = checkinStatus?.streak || 0
+  const checked = checkinStatus?.checked || false
+
+  return (
+    <div className="events-tab">
+      <h2 className="tab-title">🎁 活动中心</h2>
+
+      {/* 每日签到卡 */}
+      <div className="event-card checkin-card">
+        <div className="checkin-header">
+          <span className="checkin-title">📅 每日签到</span>
+          <span className="checkin-streak">
+            连续 <strong>{streak}</strong> 天
+          </span>
+        </div>
+
+        {/* 7 天进度条 */}
+        <div className="streak-dots">
+          {[1, 2, 3, 4, 5, 6, 7].map((day) => (
+            <div
+              key={day}
+              className={`streak-dot ${day <= streak ? 'filled' : ''} ${day === 7 ? 'bonus' : ''}`}
+              title={day === 7 ? '周奖励' : `第 ${day} 天`}
+            >
+              {day === 7 ? '🎁' : day}
+            </div>
+          ))}
+        </div>
+
+        <button
+          className={`checkin-btn pixel-btn ${checked ? 'checked' : ''}`}
+          onClick={handleCheckIn}
+          disabled={checked || checkingIn}
+        >
+          {checked
+            ? '✅ 今日已签到'
+            : checkingIn
+            ? '签到中...'
+            : '签到 +300'}
+        </button>
+        {checked && (
+          <p className="checkin-done-text">明天再来吧~</p>
+        )}
+      </div>
+
+      {/* 积分面板 */}
+      <div className="event-card points-card">
+        <div className="points-main">
+          <span className="points-label">当前积分</span>
+          <span className="points-value">{points?.points ?? 0}</span>
+        </div>
+        <div className="points-detail">
+          <div className="points-detail-item">
+            <span className="points-detail-label">累计获得</span>
+            <span className="points-detail-value earn">
+              +{points?.totalEarned ?? 0}
+            </span>
+          </div>
+          <div className="points-divider" />
+          <div className="points-detail-item">
+            <span className="points-detail-label">累计消费</span>
+            <span className="points-detail-value spend">
+              -{points?.totalSpent ?? 0}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 积分流水 */}
+      <div className="event-card logs-card">
+        <h3 className="logs-title">📋 积分流水</h3>
+        {logs.length > 0 ? (
+          <div className="logs-table-wrapper">
+            <table className="logs-table">
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>详情</th>
+                  <th>变动</th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log, i) => (
+                  <tr key={i}>
+                    <td className="log-time">
+                      {new Date(log.createdAt).toLocaleString(
+                        'zh-CN',
+                        {
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      )}
+                    </td>
+                    <td className="log-reason">{log.reason}</td>
+                    <td
+                      className={`log-amount ${log.amount >= 0 ? 'positive' : 'negative'}`}
+                    >
+                      {log.amount >= 0
+                        ? `+${log.amount}`
+                        : log.amount}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-mid logs-empty">暂无记录</p>
+        )}
       </div>
     </div>
   )
 }
 
-// ====== Mod Tab ======
-function ModTab() {
+// ====== 抽奖 Tab ======
+function LotteryTab({
+  yunyunAuth,
+  showToast,
+}: {
+  yunyunAuth: YunYunAuth | null
+  showToast: (msg: string, type: 'success' | 'error' | 'info') => void
+}) {
+  const [drawing, setDrawing] = useState(false)
+  const [lastResult, setLastResult] = useState<{
+    prizeName: string
+    prizeType: string
+  } | null>(null)
+  const [history, setHistory] = useState<
+    Array<{ prizeName: string; prizeType: string; createdAt: string }>
+  >([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
+
+  const loadHistory = useCallback(async () => {
+    if (!yunyunAuth) return
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setLoadingHistory(true)
+    try {
+      const res = await api.yunyunGetLotteryHistory(
+        yunyunAuth.uuid,
+        yunyunAuth.token
+      )
+      if (res.success && res.data) {
+        setHistory(res.data.slice(0, 10))
+      }
+    } catch {}
+    setLoadingHistory(false)
+  }, [yunyunAuth])
+
+  useEffect(() => {
+    if (yunyunAuth) loadHistory()
+  }, [loadHistory, yunyunAuth])
+
+  const handleDraw = async () => {
+    if (!yunyunAuth || drawing) return
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setDrawing(true)
+    setLastResult(null)
+
+    try {
+      const res = await api.yunyunDrawLottery(
+        yunyunAuth.uuid,
+        yunyunAuth.token,
+        100
+      )
+      if (res.success && res.data) {
+        setLastResult(res.data)
+        showToast(
+          `抽到: ${res.data.prizeName} (${res.data.prizeType})`,
+          'success'
+        )
+        await loadHistory()
+      } else {
+        showToast(res.error || '抽奖失败', 'error')
+      }
+    } catch {
+      showToast('抽奖失败，请重试', 'error')
+    }
+    setDrawing(false)
+  }
+
+  if (!yunyunAuth) {
+    return (
+      <div className="lottery-tab">
+        <h2 className="tab-title">🎰 幸运抽奖</h2>
+        <div className="empty-state">
+          <span className="empty-emoji">🔐</span>
+          <p className="pixel-font">请先在「我的」页面登录云云账号</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mod-tab">
-      <h2 className="tab-title">📦 Mod 管理</h2>
-      <p className="tab-desc">
-        管理和更新你的模组，一键安装云云服务器专属 Mod 包
-      </p>
-      <div className="mod-list-placeholder">
-        <div className="mod-item-demo">
-          <span className="mod-icon">📄</span>
-          <span className="mod-name">Fabric API</span>
-          <span className="mod-ver">v0.95.0</span>
+    <div className="lottery-tab">
+      <h2 className="tab-title">🎰 幸运抽奖</h2>
+
+      {/* 抽奖机 */}
+      <div className="lottery-machine">
+        <div className="lottery-display">
+          {drawing ? (
+            <div className="lottery-spinning">
+              <span className="lottery-spin-icon">🎰</span>
+              <p>抽奖中...</p>
+            </div>
+          ) : lastResult ? (
+            <div className="lottery-result">
+              <span className="lottery-prize-icon">
+                {lastResult.prizeType === 'title'
+                  ? '🏷️'
+                  : lastResult.prizeType === 'effect'
+                  ? '✨'
+                  : '🎁'}
+              </span>
+              <p className="lottery-prize-name pixel-font">
+                {lastResult.prizeName}
+              </p>
+              <p className="lottery-prize-type">
+                {lastResult.prizeType}
+              </p>
+            </div>
+          ) : (
+            <div className="lottery-idle">
+              <span className="lottery-idle-icon">🎰</span>
+              <p>消耗 100 积分</p>
+              <p className="text-mid">试试手气!</p>
+            </div>
+          )}
         </div>
-        <div className="mod-item-demo">
-          <span className="mod-icon">📄</span>
-          <span className="mod-name">Sodium</span>
-          <span className="mod-ver">v0.5.11</span>
-        </div>
-        <div className="mod-item-demo">
-          <span className="mod-icon">📄</span>
-          <span className="mod-name">Iris Shaders</span>
-          <span className="mod-ver">v1.7.5</span>
-        </div>
-        <button className="pixel-btn mod-install-btn">
-          📥 一键安装 Mod 包
+
+        <button
+          className="lottery-draw-btn pixel-btn"
+          onClick={handleDraw}
+          disabled={drawing}
+        >
+          {drawing ? '🎰 抽奖中...' : '🎰 开始抽奖 (100积分)'}
         </button>
+      </div>
+
+      {/* 抽奖记录 */}
+      <div className="event-card lottery-history-card">
+        <h3 className="logs-title">📜 抽奖记录</h3>
+        {loadingHistory ? (
+          <p className="text-mid">加载中...</p>
+        ) : history.length > 0 ? (
+          <div className="logs-table-wrapper">
+            <table className="logs-table">
+              <thead>
+                <tr>
+                  <th>时间</th>
+                  <th>奖品</th>
+                  <th>类型</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((h, i) => (
+                  <tr key={i}>
+                    <td className="log-time">
+                      {new Date(h.createdAt).toLocaleString(
+                        'zh-CN',
+                        {
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }
+                      )}
+                    </td>
+                    <td className="log-reason">{h.prizeName}</td>
+                    <td className="log-amount">{h.prizeType}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-mid logs-empty">暂无抽奖记录</p>
+        )}
       </div>
     </div>
   )
@@ -405,87 +831,239 @@ function ModTab() {
 // ====== 我的 Tab ======
 function ProfileTab({
   authResult,
+  yunyunAuth,
+  onYunYunAuthChange,
+  showToast,
 }: {
   authResult: AuthResult | null
+  yunyunAuth: YunYunAuth | null
+  onYunYunAuthChange: (auth: YunYunAuth | null) => void
+  showToast: (msg: string, type: 'success' | 'error' | 'info') => void
 }) {
-  const displayName = authResult?.username || 'Steve'
-  const displayUuid = authResult?.uuid || generateFakeUUID()
-  const avatarUrl = authResult
-    ? `https://mc-heads.net/avatar/${authResult.uuid}/64`
-    : undefined
+  const [loginStep, setLoginStep] = useState<'idle' | 'nickname' | 'code'>(
+    'idle'
+  )
+  const [nickname, setNickname] = useState('')
+  const [verifyCode, setVerifyCode] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [loginError, setLoginError] = useState<string | null>(null)
+
+  const displayName = authResult?.username || '未登录'
+  const displayUuid = authResult?.uuid || '---'
+
+  // 请求验证码
+  const handleRequestCode = async () => {
+    if (!nickname.trim()) {
+      setLoginError('请输入昵称')
+      return
+    }
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setLoginLoading(true)
+    setLoginError(null)
+
+    try {
+      const res = await api.yunyunLogin(nickname.trim())
+      if (res.success) {
+        setLoginStep('code')
+        showToast('验证码已发送，请在游戏中输入', 'info')
+      } else {
+        setLoginError(res.error || '请求失败')
+      }
+    } catch (err: any) {
+      setLoginError(err.message || '请求失败')
+    }
+    setLoginLoading(false)
+  }
+
+  // 确认验证码
+  const handleVerify = async () => {
+    if (!verifyCode.trim() || verifyCode.trim().length !== 6) {
+      setLoginError('请输入6位验证码')
+      return
+    }
+    const api = window.yunyunLauncher
+    if (!api) return
+
+    setLoginLoading(true)
+    setLoginError(null)
+
+    try {
+      const res = await api.yunyunVerify(
+        nickname.trim(),
+        verifyCode.trim()
+      )
+      if (res.success && res.data) {
+        const auth = res.data
+        await api.yunyunSetAuth(auth)
+        onYunYunAuthChange(auth)
+        showToast(`登录成功！欢迎 ${auth.nickname}`, 'success')
+        setLoginStep('idle')
+        setNickname('')
+        setVerifyCode('')
+      } else {
+        setLoginError(res.error || '验证失败')
+      }
+    } catch (err: any) {
+      setLoginError(err.message || '验证失败')
+    }
+    setLoginLoading(false)
+  }
+
+  // 退出云云登录
+  const handleLogout = async () => {
+    const api = window.yunyunLauncher
+    if (!api) return
+    await api.yunyunClearAuth()
+    onYunYunAuthChange(null)
+    showToast('已退出云云登录', 'info')
+  }
+
+  const handleCancel = () => {
+    setLoginStep('idle')
+    setNickname('')
+    setVerifyCode('')
+    setLoginError(null)
+  }
 
   return (
     <div className="profile-tab">
       <h2 className="tab-title">👤 我的</h2>
-      <div className="profile-card">
-        {avatarUrl ? (
-          <img
-            className="avatar-placeholder"
-            src={avatarUrl}
-            alt={displayName}
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none'
-            }}
-          />
+
+      {/* 微软账号信息 */}
+      <div className="event-card profile-info-card">
+        <h3 className="profile-section-title">微软账号</h3>
+        <div className="profile-info-row">
+          <span className="profile-info-label">用户名</span>
+          <span className="profile-info-value pixel-font">
+            {displayName}
+          </span>
+        </div>
+        <div className="profile-info-row">
+          <span className="profile-info-label">UUID</span>
+          <span className="profile-info-value uuid-text">
+            {displayUuid}
+          </span>
+        </div>
+      </div>
+
+      {/* 云云账号信息 */}
+      <div className="event-card profile-info-card">
+        <h3 className="profile-section-title">云云账号</h3>
+        {yunyunAuth ? (
+          <>
+            <div className="profile-info-row">
+              <span className="profile-info-label">昵称</span>
+              <span className="profile-info-value pixel-font">
+                {yunyunAuth.nickname}
+              </span>
+            </div>
+            <div className="profile-info-row">
+              <span className="profile-info-label">UUID</span>
+              <span className="profile-info-value uuid-text">
+                {yunyunAuth.uuid}
+              </span>
+            </div>
+            <button
+              className="logout-btn yunyun-logout-btn"
+              onClick={handleLogout}
+            >
+              退出云云登录
+            </button>
+          </>
         ) : (
-          <div className="avatar-placeholder">☁️</div>
+          <div className="yunyun-login-form">
+            {loginStep === 'idle' && (
+              <>
+                <p className="text-mid login-hint">
+                  登录云云账号以使用积分、商城等功能
+                </p>
+                <button
+                  className="pixel-btn yunyun-login-start-btn"
+                  onClick={() => setLoginStep('nickname')}
+                >
+                  ☁️ 登录云云账号
+                </button>
+              </>
+            )}
+
+            {loginStep === 'nickname' && (
+              <div className="login-form-inner">
+                <label className="login-form-label">输入你的游戏昵称</label>
+                <input
+                  className="login-form-input"
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder="游戏内昵称"
+                  maxLength={32}
+                  autoFocus
+                />
+                <div className="login-form-actions">
+                  <button
+                    className="cancel-login-btn"
+                    onClick={handleCancel}
+                  >
+                    取消
+                  </button>
+                  <button
+                    className="pixel-btn"
+                    onClick={handleRequestCode}
+                    disabled={loginLoading || !nickname.trim()}
+                  >
+                    {loginLoading ? '发送中...' : '获取验证码'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {loginStep === 'code' && (
+              <div className="login-form-inner">
+                <label className="login-form-label">
+                  请在游戏中输入 <code>/verify</code> 查看验证码
+                </label>
+                <input
+                  className="login-form-input"
+                  type="text"
+                  value={verifyCode}
+                  onChange={(e) =>
+                    setVerifyCode(
+                      e.target.value.replace(/\D/g, '').slice(0, 6)
+                    )
+                  }
+                  placeholder="输入6位验证码"
+                  maxLength={6}
+                  autoFocus
+                />
+                <div className="login-form-actions">
+                  <button
+                    className="cancel-login-btn"
+                    onClick={handleCancel}
+                  >
+                    取消
+                  </button>
+                  <button
+                    className="pixel-btn"
+                    onClick={handleVerify}
+                    disabled={loginLoading || verifyCode.length !== 6}
+                  >
+                    {loginLoading ? '验证中...' : '确认登录'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {loginError && (
+              <p className="login-error profile-login-error">
+                ⚠ {loginError}
+              </p>
+            )}
+          </div>
         )}
-        <h3 className="player-name pixel-font">{displayName}</h3>
-        <p className="player-id">UUID: {displayUuid}</p>
-        <div className="profile-stats">
-          <div className="pstat">
-            <span className="pstat-val">🪙 1,280</span>
-            <span className="pstat-label">金币</span>
-          </div>
-          <div className="pstat">
-            <span className="pstat-val">⭐ 42</span>
-            <span className="pstat-label">成就点数</span>
-          </div>
-        </div>
       </div>
-    </div>
-  )
-}
 
-function generateFakeUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    const v = c === 'x' ? r : (r & 0x3) | 0x8
-    return v.toString(16)
-  })
-}
-
-// ====== 设置 Tab ======
-function SettingsTab() {
-  return (
-    <div className="settings-tab">
-      <h2 className="tab-title">⚙️ 设置</h2>
-      <div className="settings-group">
-        <h3 className="settings-group-title">游戏设置</h3>
-        <div className="setting-row">
-          <span>Java 路径</span>
-          <span className="setting-val text-mid">自动检测</span>
-        </div>
-        <div className="setting-row">
-          <span>游戏版本</span>
-          <span className="setting-val">1.21</span>
-        </div>
-        <div className="setting-row">
-          <span>内存分配</span>
-          <span className="setting-val">4 GB</span>
-        </div>
-      </div>
-      <div className="settings-group">
-        <h3 className="settings-group-title">启动器设置</h3>
-        <div className="setting-row">
-          <span>开机启动</span>
-          <span className="setting-val">关闭</span>
-        </div>
-        <div className="setting-row">
-          <span>关闭后最小化</span>
-          <span className="setting-val">开启</span>
-        </div>
-      </div>
+      {/* 版权 */}
       <div className="settings-footer">
         <p className="version-info">云云启动器 v0.1.0</p>
         <p className="copyright">© 2026 雪冷水</p>
@@ -635,13 +1213,15 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('home')
   const [isMaximized, setIsMaximized] = useState(false)
 
-  // --- 认证状态 ---
+  // --- 微软认证 ---
   const [authResult, setAuthResult] = useState<AuthResult | null>(null)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
   const [deviceCode, setDeviceCode] = useState<string | null>(null)
   const [loginError, setLoginError] = useState<string | null>(null)
   const pollingRef = useRef(false)
-  const currentDeviceCodeRef = useRef<string>('')
+
+  // --- 云云认证 ---
+  const [yunyunAuth, setYunyunAuth] = useState<YunYunAuth | null>(null)
 
   // --- 版本/Java ---
   const [versions, setVersions] = useState<VersionInfo[]>([])
@@ -659,12 +1239,31 @@ export default function App() {
   const [isLaunching, setIsLaunching] = useState(false)
   const [launchLogs, setLaunchLogs] = useState<string[]>([])
 
+  // --- Toast ---
+  const [toasts, setToasts] = useState<
+    Array<{ id: number; message: string; type: 'success' | 'error' | 'info' }>
+  >([])
+  const toastIdRef = useRef(0)
+
+  const showToast = useCallback(
+    (message: string, type: 'success' | 'error' | 'info') => {
+      const id = ++toastIdRef.current
+      setToasts((prev) => [...prev, { id, message, type }])
+    },
+    []
+  )
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id))
+  }, [])
+
   // =============================================
-  //  初始化：加载版本列表和 Java 列表
+  //  初始化
   // =============================================
   useEffect(() => {
     loadVersions()
     loadJavaRuntimes()
+    loadYunYunAuth()
   }, [])
 
   const loadVersions = async () => {
@@ -673,11 +1272,10 @@ export default function App() {
     const result = await api.fetchVersions()
     if (result.success && result.data) {
       setVersions(result.data)
-      // 默认选择最新的正式版
       const latestRelease = result.data
-        .filter((v) => v.type === 'release')
+        .filter((v: VersionInfo) => v.type === 'release')
         .sort(
-          (a, b) =>
+          (a: VersionInfo, b: VersionInfo) =>
             new Date(b.releaseTime).getTime() -
             new Date(a.releaseTime).getTime()
         )[0]
@@ -697,8 +1295,17 @@ export default function App() {
     }
   }
 
+  const loadYunYunAuth = async () => {
+    const api = window.yunyunLauncher
+    if (!api) return
+    const auth = await api.yunyunGetAuth()
+    if (auth) {
+      setYunyunAuth(auth)
+    }
+  }
+
   // =============================================
-  //  登录
+  //  微软登录
   // =============================================
   const handleLogin = async () => {
     const api = window.yunyunLauncher
@@ -718,16 +1325,14 @@ export default function App() {
 
       const dc = deviceResult.data!
       setDeviceCode(dc.userCode)
-      currentDeviceCodeRef.current = dc.userCode
       pollingRef.current = true
 
-      // 开始轮询
       const authResult = await api.pollForToken(
         dc.userCode,
         dc.interval
       )
 
-      if (!pollingRef.current) return // 用户取消了
+      if (!pollingRef.current) return
 
       if (!authResult.success) {
         setLoginError(authResult.error || '登录失败')
@@ -740,7 +1345,6 @@ export default function App() {
       setIsLoggingIn(false)
       setDeviceCode(null)
 
-      // 保存 refresh token 到 local storage
       try {
         localStorage.setItem(
           'yunyun_refresh_token',
@@ -748,8 +1352,7 @@ export default function App() {
         )
       } catch {}
 
-      // 切换到我的标签页
-      setActiveTab('profile')
+      showToast(`欢迎 ${authResult.data!.username}`, 'success')
     } catch (err: any) {
       setLoginError(err.message || '登录失败')
       setIsLoggingIn(false)
@@ -774,12 +1377,7 @@ export default function App() {
     const api = window.yunyunLauncher
     if (!api || !authResult || !selectedVersion || !selectedJava) return
 
-    // 计算游戏目录
     const gameDir = localStorage.getItem('yunyun_game_dir') || '.minecraft'
-
-    // 先下载（如果还没下载）
-    const versionJsonPath = `${gameDir}/versions/${selectedVersion}/${selectedVersion}.json`
-    // 我们通过尝试下载来确保文件存在（downloader 会跳过已存在的文件）
 
     setIsDownloading(true)
     setDownloadProgress(null)
@@ -800,19 +1398,14 @@ export default function App() {
     setIsDownloading(false)
     setDownloadProgress(null)
 
-    // 启动游戏
     setIsLaunching(true)
     setLaunchLogs([])
     setActiveTab('home')
 
-    // 注册日志监听
     const unsubLog = api.onLaunchLog((line) => {
       setLaunchLogs((prev) => {
         const next = [...prev, line]
-        // 最多保留 500 行
-        if (next.length > 500) {
-          return next.slice(next.length - 500)
-        }
+        if (next.length > 500) return next.slice(next.length - 500)
         return next
       })
     })
@@ -829,7 +1422,7 @@ export default function App() {
 
     const launchConfig = {
       versionId: selectedVersion,
-      gameDir: gameDir,
+      gameDir,
       javaPath: selectedJava,
       javaArgs: `-Xmx${memory}G -Xms${Math.max(1, Math.floor(Number(memory) / 2))}G`,
       username: authResult.username,
@@ -897,7 +1490,17 @@ export default function App() {
   }, [])
 
   // =============================================
-  //  渲染
+  //  云云认证回调
+  // =============================================
+  const handleYunYunAuthChange = useCallback(
+    (auth: YunYunAuth | null) => {
+      setYunyunAuth(auth)
+    },
+    []
+  )
+
+  // =============================================
+  //  渲染 Tab
   // =============================================
   const renderTab = () => {
     switch (activeTab) {
@@ -914,11 +1517,8 @@ export default function App() {
             javaRuntimes={javaRuntimes}
             selectedJava={selectedJava}
             onSelectJava={(v) => {
-              if (v === '__refresh__') {
-                loadJavaRuntimes()
-              } else {
-                setSelectedJava(v)
-              }
+              if (v === '__refresh__') loadJavaRuntimes()
+              else setSelectedJava(v)
             }}
             memory={memory}
             onMemoryChange={setMemory}
@@ -930,18 +1530,28 @@ export default function App() {
             onCancelLogin={handleCancelLogin}
             onLaunch={handleLaunch}
             onKill={handleKill}
+            yunyunAuth={yunyunAuth}
           />
         )
       case 'shop':
-        return <ShopTab />
-      case 'mod':
-        return <ModTab />
+        return <ShopTab yunyunAuth={yunyunAuth} />
+      case 'events':
+        return <EventsTab yunyunAuth={yunyunAuth} showToast={showToast} />
+      case 'lottery':
+        return (
+          <LotteryTab yunyunAuth={yunyunAuth} showToast={showToast} />
+        )
       case 'profile':
-        return <ProfileTab authResult={authResult} />
-      case 'settings':
-        return <SettingsTab />
+        return (
+          <ProfileTab
+            authResult={authResult}
+            yunyunAuth={yunyunAuth}
+            onYunYunAuthChange={handleYunYunAuthChange}
+            showToast={showToast}
+          />
+        )
       default:
-        return <HomeTab {...({} as any)} />
+        return null
     }
   }
 
@@ -991,6 +1601,20 @@ export default function App() {
       </div>
 
       <BottomBar activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Toast 层 */}
+      {toasts.length > 0 && (
+        <div className="toast-container">
+          {toasts.map((t) => (
+            <Toast
+              key={t.id}
+              message={t.message}
+              type={t.type}
+              onDone={() => dismissToast(t.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -8,6 +8,17 @@ import {
 import { findJavaRuntimes } from './java-finder'
 import { fetchVersionManifest, downloadVersion } from './downloader'
 import { launchMinecraft, killMinecraft } from './launcher'
+import { authStore, settingsStore } from './store'
+import {
+  yunyunLogin,
+  yunyunVerify,
+  yunyunGetPoints,
+  yunyunCheckInStatus,
+  yunyunCheckIn,
+  yunyunGetLogs,
+  yunyunDrawLottery,
+  yunyunGetLotteryHistory,
+} from './yunyun-api'
 import type { ChildProcess } from 'child_process'
 
 let mainWindow: BrowserWindow | null = null
@@ -179,4 +190,134 @@ function registerIpcHandlers(): void {
       return { success: false, error: err.message }
     }
   })
+
+  // ============================================================
+  //  Phase 2: 云云生态 API IPC Handlers
+  // ============================================================
+
+  // --- 云云登录 ---
+  ipcMain.handle('yunyun:login', async (_event, nickname: string) => {
+    try {
+      const result = await yunyunLogin(nickname)
+      return { success: true, data: result }
+    } catch (err: any) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle(
+    'yunyun:verify',
+    async (_event, nickname: string, code: string) => {
+      try {
+        const result = await yunyunVerify(nickname, code)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  // --- Auth Store ---
+  ipcMain.handle('yunyun:get-auth', async () => {
+    return authStore.get('auth', null)
+  })
+
+  ipcMain.handle('yunyun:set-auth', async (_event, data: any) => {
+    authStore.set('auth', data)
+    return true
+  })
+
+  ipcMain.handle('yunyun:clear-auth', async () => {
+    authStore.delete('auth')
+    return true
+  })
+
+  // --- 积分 ---
+  ipcMain.handle(
+    'yunyun:get-points',
+    async (_event, uuid: string, token: string) => {
+      try {
+        const result = await yunyunGetPoints(uuid, token)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  // --- 签到 ---
+  ipcMain.handle(
+    'yunyun:checkin-status',
+    async (_event, uuid: string, token: string) => {
+      try {
+        const result = await yunyunCheckInStatus(uuid, token)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'yunyun:checkin',
+    async (_event, uuid: string, token: string) => {
+      try {
+        const result = await yunyunCheckIn(uuid, token)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  // --- 积分流水 ---
+  ipcMain.handle(
+    'yunyun:get-logs',
+    async (_event, uuid: string, token: string) => {
+      try {
+        const result = await yunyunGetLogs(uuid, token)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  // --- 抽奖 ---
+  ipcMain.handle(
+    'yunyun:draw-lottery',
+    async (_event, uuid: string, token: string, cost: number) => {
+      try {
+        const result = await yunyunDrawLottery(uuid, token, cost)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  ipcMain.handle(
+    'yunyun:lottery-history',
+    async (_event, uuid: string, token: string) => {
+      try {
+        const result = await yunyunGetLotteryHistory(uuid, token)
+        return { success: true, data: result }
+      } catch (err: any) {
+        return { success: false, error: err.message }
+      }
+    }
+  )
+
+  // --- 设置 Store ---
+  ipcMain.handle('yunyun:get-settings', async () => {
+    return settingsStore.store
+  })
+
+  ipcMain.handle(
+    'yunyun:set-settings',
+    async (_event, key: string, value: any) => {
+      settingsStore.set(key, value)
+      return true
+    }
+  )
 }

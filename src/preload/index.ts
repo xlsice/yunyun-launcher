@@ -23,7 +23,6 @@ contextBridge.exposeInMainWorld('yunyunLauncher', {
   onDownloadProgress: (callback: (p: any) => void) => {
     const handler = (_event: any, p: any) => callback(p)
     ipcRenderer.on('download-progress', handler)
-    // 返回取消监听函数
     return () => ipcRenderer.removeListener('download-progress', handler)
   },
 
@@ -40,6 +39,44 @@ contextBridge.exposeInMainWorld('yunyunLauncher', {
     ipcRenderer.on('launch-exit', handler)
     return () => ipcRenderer.removeListener('launch-exit', handler)
   },
+
+  // ============================================================
+  //  Phase 2: 云云生态 API
+  // ============================================================
+
+  // --- 云云登录 ---
+  yunyunLogin: (nickname: string) =>
+    ipcRenderer.invoke('yunyun:login', nickname),
+  yunyunVerify: (nickname: string, code: string) =>
+    ipcRenderer.invoke('yunyun:verify', nickname, code),
+  yunyunGetAuth: () => ipcRenderer.invoke('yunyun:get-auth'),
+  yunyunSetAuth: (data: any) => ipcRenderer.invoke('yunyun:set-auth', data),
+  yunyunClearAuth: () => ipcRenderer.invoke('yunyun:clear-auth'),
+
+  // --- 积分 ---
+  yunyunGetPoints: (uuid: string, token: string) =>
+    ipcRenderer.invoke('yunyun:get-points', uuid, token),
+
+  // --- 每日签到 ---
+  yunyunCheckInStatus: (uuid: string, token: string) =>
+    ipcRenderer.invoke('yunyun:checkin-status', uuid, token),
+  yunyunCheckIn: (uuid: string, token: string) =>
+    ipcRenderer.invoke('yunyun:checkin', uuid, token),
+
+  // --- 积分流水 ---
+  yunyunGetLogs: (uuid: string, token: string) =>
+    ipcRenderer.invoke('yunyun:get-logs', uuid, token),
+
+  // --- 抽奖 ---
+  yunyunDrawLottery: (uuid: string, token: string, cost: number) =>
+    ipcRenderer.invoke('yunyun:draw-lottery', uuid, token, cost),
+  yunyunGetLotteryHistory: (uuid: string, token: string) =>
+    ipcRenderer.invoke('yunyun:lottery-history', uuid, token),
+
+  // --- 设置存储 ---
+  yunyunGetSettings: () => ipcRenderer.invoke('yunyun:get-settings'),
+  yunyunSetSettings: (key: string, value: any) =>
+    ipcRenderer.invoke('yunyun:set-settings', key, value),
 
   // --- 通用 IPC ---
   invoke: (channel: string, ...args: any[]) =>
